@@ -9,7 +9,7 @@ void lru (char* fileName, int nframes, char* mode) {
 }
 
 void fifo (char* fileName, int nframes, char* mode) {
-
+printf("hi");
 }
 
 void vms (char* fileName, int nframes, char* mode) {
