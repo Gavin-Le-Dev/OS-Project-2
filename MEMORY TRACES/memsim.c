@@ -4,61 +4,53 @@
 #include <limits.h>
 #include <stdbool.h>
 
-int TRACESIZE = 100000;
-
 typedef struct{
-    char vpn;
+    unsigned vpn;
     char d;
 } Trace;
 
-void lru (Trace* traceFile, int nframes, char* mode) {
+void lru (FILE* file, int nframes, char* mode) {
+    
+}
+
+void fifo (FILE* file, int nframes, char* mode) {
 
 }
 
-void fifo (Trace* traceFile, int nframes, char* mode) {
+void vms (FILE* file, int nframes, char* mode) {  
 
 }
 
-void vms (Trace* traceFile, int nframes, char* mode) {   
-    printf("PageNumber is %d", 20);
-    int i;
-    for(i = 0; i < TRACESIZE; i++)
+void rmd (FILE* file, int nframes, char* mode) {
+    Trace page_table[nframes];
+    unsigned addr;
+    char d;
+    int i = 0;
+
+    for (i = 0; i < nframes; i++)
     {
-        printf(traceFile[i].vpn + " " + traceFile[i].d + '\n');
+        fscanf(file, "%x %c", &addr, &d);
+        page_table[i].vpn = addr>>12;
+        page_table[i].d = d;
+        printf("%x\n", page_table[i].vpn);
     }
-}
-
-void rmd (Trace* traceFile, int nframes, char* mode) {
-
-}
-
-void readTraceFile (FILE* file, Trace* traceFile){
-    char address;
-    char rw;
-    int i;
-
-    for(i = 0; fscanf(file, "%s %c", &address, &rw) != EOF; i++)
-    {
-        traceFile[i].vpn = address;
-        traceFile[i].d = rw;
-    }
-    fclose(file);
 }
 
 int main(int argc, char *argv[]) {
     char *fileName = argv[1];
-    Trace traceFile[TRACESIZE];
     int nframes = atoi(argv[2]);
     char *algo = argv[3];
     char *mode = argv[4];
+    unsigned addr;
+    char d;
+    int i = 0;
 
-	FILE * file;
+	FILE *file;
 	file = fopen(argv[1], "r");
     if(!file) {
         fprintf(stderr, "ERROR: Can't open %s\n", fileName);
         exit(1); 
     }
-    else
 
     if (strcmp(algo, "lru") == 0) 
     {
@@ -66,7 +58,7 @@ int main(int argc, char *argv[]) {
     }
     else if (strcmp(algo, "rmd") == 0) {
         printf("--- RMD: Randomly Selects to Replace --\n");
-        lru(traceFile, nframes, mode);
+        rmd(file, nframes, mode);
     }
     else if (strcmp(algo, "fifo") == 0)
     {
@@ -75,7 +67,7 @@ int main(int argc, char *argv[]) {
     else if (strcmp(algo, "vms") == 0)
     {
         printf("--- VMS --\n");
-        vms(traceFile, nframes, mode);
+        vms(file, nframes, mode);
     }
     else
     {
