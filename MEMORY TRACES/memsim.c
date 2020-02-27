@@ -5,7 +5,10 @@
 #include <stdbool.h>
 
 
-void lru (char* fileName, int nframes, char* mode) {
+typedef struct{
+    unsigned vpn;
+    char d;
+} Trace;
 
     unsigned addr;
     char rw;
@@ -30,6 +33,11 @@ struct trace
 };
 
 void fifo (char* fileName, int nframes, char* mode) {
+void lru (FILE* file, int nframes, char* mode) {
+    
+}
+
+void fifo (FILE* file, int nframes, char* mode) {
 
     unsigned addr;
     char rw;
@@ -80,24 +88,40 @@ void fifo (char* fileName, int nframes, char* mode) {
 
 }
 
-void vms (char* fileName, int nframes, char* mode) {
+void vms (FILE* file, int nframes, char* mode) {  
 
 }
 
-void vms (char* fileName, int nframes, char* mode) {
+void rmd (FILE* file, int nframes, char* mode) {
+    Trace page_table[nframes];
+    unsigned addr;
+    char d;
+    int i = 0;
 
+    for (i = 0; i < nframes; i++)
+    {
+        fscanf(file, "%x %c", &addr, &d);
+        page_table[i].vpn = addr>>12;
+        page_table[i].d = d;
+        printf("%x\n", page_table[i].vpn);
+    }
 }
-
-
 
 int main(int argc, char *argv[]) {
-    char *trace_file = argv[1];
+    char *fileName = argv[1];
     int nframes = atoi(argv[2]);
     char *algo = argv[3];
     char *mode = argv[4];
+    unsigned addr;
+    char d;
+    int i = 0;
 
-	FILE * file;
+	FILE *file;
 	file = fopen(argv[1], "r");
+    if(!file) {
+        fprintf(stderr, "ERROR: Can't open %s\n", fileName);
+        exit(1); 
+    }
 
     if (strcmp(algo, "lru") == 0) 
     {
@@ -105,6 +129,7 @@ int main(int argc, char *argv[]) {
     }
     else if (strcmp(algo, "rmd") == 0) {
         printf("--- RMD: Randomly Selects to Replace --\n");
+        rmd(file, nframes, mode);
     }
     else if (strcmp(algo, "fifo") == 0)
     {
@@ -113,6 +138,7 @@ int main(int argc, char *argv[]) {
     else if (strcmp(algo, "vms") == 0)
     {
         printf("--- VMS --\n");
+        vms(file, nframes, mode);
     }
     else
     {
