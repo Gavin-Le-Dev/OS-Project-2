@@ -16,17 +16,126 @@ struct Trace{
     bool isDirty;
 };
 
-struct trace   
-{
-    unsigned vpn;   //page number
-    char d;        //Read/Write
-    int dirt;          //dirty or not
+struct trace{
+    unsigned vpn;
+    bool isDirty;
+    int access;
 };
 
+int existPage(trace* arr, int n, unsigned newAdd)
+{
+    int locate;
 
-void lru (FILE* file, int nframes, char* mode) {
-    
+    for(int i=0; i<n; i++)
+    {
+        if(arr[i].vpn == newAdd)
+        { locate =i;}
+    }
+
+    return locate;
 }
+
+/******************************************************************************************************************/
+int smallest(trace* arr, int n) //find the smallest. For LRU to find smallest timer. i.e. least frequently 
+{   
+    int min, location;
+
+    min = arr[0].access;
+    for(int i=0; i<n; i++)
+    {
+        if(arr[i].access < min)
+        {
+            min = arr[i].access;
+            location = i;
+        }
+    }
+
+    return i;
+}
+
+void lru (FILE* file, int nframes, bool isDebug) 
+{
+    struct trace LRU[nframes];  //LRU table
+    unsigned addr;
+    char d;
+    int timer = 0;
+
+    for (i = 0; i < nframes; i++) //initialize frame to -1
+        {LRU[i].vpn = -1;}
+
+    while(fscanf(file, "%x %c", &addr, &d) != EOF)
+    {
+
+        struct trace newPage;
+        newPage.vpn = addr>>12;     //new page address
+        newPage.access = timer;     //new page frequency
+        bool full = isFull(LRU, nframes, isDebug);
+        bool isExist = rmdIsExist(LRU, nframes, newPage.vpn, isDebug);
+        
+
+        if (d == 'w' || d == 'W'){ newPage.isDirty = true; }
+        else { newPage.isDirty = false; }
+
+        if(isDebug){
+            printf ("\nNew Address is: %x | %c\n", addr, d);
+            printf ("Page number is: %x\n", newPage.vpn);
+        }
+
+         if (full) 
+         {
+            if (isDebug){printf("Table is full\n");}
+            if (!isExist)   //if table is full and page does not exist in table
+            {
+                int LRUlocation = smallest(LRU, nframes); //replace with LRU page
+                LRU[LRUlocation] = newPage;
+
+                if (isDebug){
+                    printf("Page %x is not exist in table\n", newPage.vpn);
+                    printf("Replace page %x to least frequently used location %d\n", newPage.vpn, LRUlocation);
+                }
+                nRead++;
+            }
+            else //if table is full and page exist on table
+            {
+                int foundlocation = existPage(LRU, nframes,  newPage.vpn);  //find the locatoin and update the timer to current
+                LRU[foundlocation].access = timer;
+                //maybe do sth with dirty
+
+                if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
+            }
+        }
+        else 
+        {
+            if (isDebug){printf("Table is not full\n");}
+            if (!isExist) 
+            { 
+                int nextfreelocatoin;
+                for(int a=0; a< nframes; a++)   //find the next empty spot
+                {
+                    if(LRU[a].vpn ==-1){nextfreelocatoin =a; break;}
+                }
+                LRU[nextfreelocatoin] = newPage;
+                if (isDebug) {
+                    printf("Page %x is not exist in table\n", newPage.vpn);
+                    printf("Add page %x to location %d", newPage.vpn, newPageLocation);
+                }
+                nRead++;
+            }
+            else 
+            {
+                int foundlocation = existPage(LRU, nframes,  newPage.vpn);  //find the locatoin and update the timer to current
+                LRU[foundlocation].access = timer;
+                if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
+            }
+        }
+
+
+        timer++;    //increment timer to the next time frame or next trace
+    }
+
+
+}
+/******************************************************************************************************************/
 
 
 bool addExist(Trace* arr, int n, unsigned ad)
@@ -40,11 +149,6 @@ bool addExist(Trace* arr, int n, unsigned ad)
     return false;
 }
 
-
-void fifo (FILE* file, int nframes, char* mode) {
-void lru (FILE* file, int nframes, bool isDebug) {
-    
-}
 
 void vms (FILE* file, int nframes, bool isDebug) {  
 
