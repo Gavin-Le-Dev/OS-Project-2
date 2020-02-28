@@ -4,26 +4,10 @@
 #include <limits.h>
 #include <stdbool.h>
 
-
 typedef struct{
     unsigned vpn;
     char d;
 } Trace;
-
-    unsigned addr;
-    char rw;
-    FILE *fp;
-    unsigned LRU[nframes];
-
-    //open file. If open failed, exit.
-    fp = fopen(fileName, "r");
-    if(fp ==NULL){printf("ERROR Opening file\n");   exit(1);}
-
-    while(fscanf(fileName,"%x %c",&addr,&rw) !=EOF)
-    {
-
-    }
-}
 
 struct trace   
 {
@@ -32,10 +16,23 @@ struct trace
     int dirt;          //dirty or not
 };
 
-void fifo (char* fileName, int nframes, char* mode) {
+
 void lru (FILE* file, int nframes, char* mode) {
     
 }
+
+
+bool addExist(Trace* arr, int n, unsigned ad)
+{
+    for(int j=0; j<n; j++)
+    {
+        if(arr[j].vpn == ad)
+        return true;
+    }
+
+    return false;
+}
+
 
 void fifo (FILE* file, int nframes, char* mode) {
 
@@ -43,47 +40,49 @@ void fifo (FILE* file, int nframes, char* mode) {
     char rw;
     FILE *fp;
     struct trace FIFO[nframes];
-    int k =0;   //keep track of oldest page 
-
+    int s, k =0;   //keep track of oldest page 
+    
     //open file. If open failed, exit.
-    fp = fopen(fileName, "r");
+    fp = fopen(file, "r");
     if(fp ==NULL){printf("ERROR Opening file\n");   exit(1);}
 
     //while not end of file, scan address and rw.
-    while(fscanf(fileName,"%x %c",&addr,&rw) !=EOF)
+    while(fscanf(file,"%x %c",&addr,&rw) !=EOF)
     {
         struct trace temp;
         addr = addr >>12;
         temp.vpn = addr;
         temp.d = rw; 
+        s=0;
 
         if(k==nframes){k=0;}    //if page is last, oldest page is at index 0
 
         if(mode == "debug") {printf("%x\t%c\n", addr, rw); }  //debug print 
 
-        // for(int i =0; i < nframes; i++) //check address in frame
+        //check if address exist in frame
+        for(int i =0;i <nframes; i++)
+        {
+            if(FIFO[i].vpn == addr) //if address exist in frame
+                {
+                    //do something with that address in frame i
+                    s++;
+                    k--;   
+                    }
+        }
+        k++;
+            
+        if((k <= nframes) && (s==0))
+        {
+        }
+        else if(s==0)
+        {
+        }
+
+        // //check if oldest slot is empty, insert page, and 
+        // if(FIFO[k].vpn == NULL)
+        // {FIFO[k] = temp; k++;}
+        // else
         // {
-        //     if(FIFO[i].vpn == NULL)   //if frame has empty slot add to queue
-        //     {
-        //         FIFO[i] =temp;
-        //     }
-        //     else    //if no empty slot check if address is in
-        //     {
-        //         if(FIFO[i].vpn == addr) //if address exist in frame
-        //         {
-
-        //         }
-        //         else    //else. if address not in frame
-        //         {
-                    
-        //         }
-        //     }            
-        // }
-        
-        if(FIFO[k].vpn == NULL)
-        {FIFO[k] = temp;}
-        
-
     }
 
 }
