@@ -173,7 +173,7 @@ void vms (FILE* file, int nframes, bool isDebug) {
 
         if(k==nframes){k=0;}    //if page is last, oldest page is at index 0
 
-        if(mode == "debug") {printf("%x\t%c\n", addr, rw); }  //debug print 
+        if(isDebug) {printf("%x\t%c\n", addr, rw); }  //debug print 
 
         //check if address exist in frame
         for(int i =0;i <nframes; i++)
