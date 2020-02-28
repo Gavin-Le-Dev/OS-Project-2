@@ -22,7 +22,7 @@ struct trace{
     int access;
 };
 
-int existPage(trace* arr, int n, unsigned newAdd)
+int existPage(struct trace* arr, int n, unsigned newAdd)
 {
     int locate;
 
@@ -36,7 +36,7 @@ int existPage(trace* arr, int n, unsigned newAdd)
 }
 
 /******************************************************************************************************************/
-int smallest(trace* arr, int n) //find the smallest. For LRU to find smallest timer. i.e. least frequently 
+int smallest(struct trace* arr, int n) //find the smallest. For LRU to find smallest timer. i.e. least frequently 
 {   
     int min, location;
 
@@ -138,7 +138,7 @@ void lru (FILE* file, int nframes, bool isDebug)
 /******************************************************************************************************************/
 
 
-bool addExist(Trace* arr, int n, unsigned ad)
+bool addExist(struct Trace* arr, int n, unsigned ad)
 {
     for(int j=0; j<n; j++)
     {
