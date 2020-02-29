@@ -59,6 +59,7 @@ void lru (FILE* file, int nframes, bool isDebug)
     unsigned addr;
     char d;
     int timer = 0;
+    int Read, Write;
 
     for (i = 0; i < nframes; i++) //initialize frame to -1
         {LRU[i].vpn = -1;}
@@ -84,7 +85,7 @@ void lru (FILE* file, int nframes, bool isDebug)
          if (full) 
          {
             if (isDebug){printf("Table is full\n");}
-            if (!isExist)   //if table is full and page does not exist in table
+            if (!isExist)   //if table is full and page does not exist in table. Page fault, evict.
             {
                 int LRUlocation = smallest(LRU, nframes); //replace with LRU page
                 LRU[LRUlocation] = newPage;
@@ -93,7 +94,8 @@ void lru (FILE* file, int nframes, bool isDebug)
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Replace page %x to least frequently used location %d\n", newPage.vpn, LRUlocation);
                 }
-                nRead++;
+                Write++;
+                Read++;
             }
             else //if table is full and page exist on table
             {
@@ -119,7 +121,7 @@ void lru (FILE* file, int nframes, bool isDebug)
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Add page %x to location %d", newPage.vpn, newPageLocation);
                 }
-                nRead++;
+                Read++;
             }
             else 
             {
@@ -133,7 +135,10 @@ void lru (FILE* file, int nframes, bool isDebug)
         timer++;    //increment timer to the next time frame or next trace
     }
 
-
+    printf("\nTotal memory frames: %d\n", nframes);
+    printf("Events in trace: %d\n", timer);
+    printf("Total disk reads: %d\n", Read);
+    printf("Total disk writes: %d\n", Write);
 }
 /******************************************************************************************************************/
 
@@ -149,8 +154,105 @@ bool addExist(struct Trace* arr, int n, unsigned ad)
     return false;
 }
 
+struct vmsTrace
+{
+    unsigned vpn;
+    bool isDirty;
+    bool secondchance;
+};
 
-void vms (FILE* file, int nframes, bool isDebug) {  
+
+void vms (FILE* file, int nframes, bool isDebug) 
+{  
+
+    struct vmsTrace VMS[nframes];
+    unsigned addr;
+    char d;
+    
+    for (i = 0; i < nframes; i++) {
+        VMS[i].vpn = -1;
+        VMS[i].secondchance = false;
+    }
+
+    while (fscanf(file, "%x %c", &addr, &d) != EOF)
+    {
+        nEvent++;
+        struct vmsTrace newPage;
+        newPage.vpn = addr>>12;
+        bool full = isFull(VMS, nframes, isDebug);
+        bool isExist = rmdIsExist(VMS, nframes, newPage.vpn, isDebug);
+
+        
+        if (d == 'w' || d == 'W'){ newPage.isDirty = true; }
+        else { newPage.isDirty = false; }
+
+        if (isDebug){
+            printf ("\nNew Address is: %x | %c\n", addr, d);
+            printf ("Page number is: %x\n", newPage.vpn);
+        }
+
+        if (full) {
+            if (isDebug){printf("Table is full\n");}
+            if (!isExist){
+                if (VMS[olderPageLocation].isDirty){
+                    nWrite++;
+                }
+                //check if oldpage has secondchance, if true replace the next FIFO with newpage
+                if(VMS[olderPageLocation].secondchance == true)
+                {
+                    VMS[olderPageLocation].secondchance = false;
+                    olderPageLocation++;
+                }
+
+                VMS[olderPageLocation] = newPage;
+                olderPageLocation++;
+                if (isDebug){
+                    printf("Page %x is not exist in table\n", newPage.vpn);
+                    printf("Replace page %x to random location %d\n", newPage.vpn, olderPageLocation);
+                }
+                nRead++;
+            }
+            else {
+                if (VMS[foundLocation].isDirty){
+                    if (!newPage.isDirty){
+                        VMS[foundLocation] = newPage;
+                    }
+                }
+                //if a hit, set second chance to true
+                VMS[foundLocation].secondchance = true;
+
+                if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
+            }
+        }
+        else {
+            if (isDebug){printf("Table is not full\n");}
+            if (!isExist) { 
+                VMS[newPageLocation] = newPage;
+                if (isDebug) {
+                    printf("Page %x is not exist in table\n", newPage.vpn);
+                    printf("Add page %x to location %d", newPage.vpn, newPageLocation);
+                }
+                nRead++;
+            }
+            else {
+                if (VMS[foundLocation].isDirty){
+                    if (!newPage.isDirty){
+                        VMS[foundLocation] = newPage;
+                    }
+                }
+
+                //if a hit, set second chance to true
+                VMS[foundLocation].secondchance = true;
+
+                if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
+            }
+        }
+        if (olderPageLocation == nframes){olderPageLocation = 0;}
+    }
+    printf("\nTotal memory frames: %d\n", nframes);
+    printf("Events in trace: %d\n", nEvent);
+    printf("Total disk reads: %d\n", nRead);
+    printf("Total disk writes: %d\n", nWrite);
 
 }
 
