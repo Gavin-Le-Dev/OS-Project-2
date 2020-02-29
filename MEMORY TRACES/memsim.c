@@ -165,12 +165,11 @@ void fifo (FILE* file, int nframes, bool isDebug) {
         else {
             if (isDebug){printf("Table is not full\n");}
             if (!isExist) { 
-                page_table[olderPageLocation] = newPage;
+                page_table[newPageLocation] = newPage;
                 if (isDebug) {
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Add page %x to location %d", newPage.vpn, newPageLocation);
                 }
-                olderPageLocation++;
                 nRead++;
             }
             else {
