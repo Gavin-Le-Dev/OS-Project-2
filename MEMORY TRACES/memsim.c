@@ -50,7 +50,7 @@ int smallest(struct trace* arr, int n) //find the smallest. For LRU to find smal
         }
     }
 
-    return i;
+    return location;
 }
 
 /******************************************************************************************************************/
