@@ -86,12 +86,8 @@ void rmd (FILE* file, int nframes, bool isDebug) {
                 nRead++;
             }
             else {
-                if (page_table[foundLocation].isDirty){
-                    if (!newPage.isDirty){
-                        page_table[foundLocation] = newPage;
-                        nWrite++;
-                        nRead++;
-                    }
+                if (newPage.isDirty){
+                    page_table[foundLocation].isDirty = newPage.isDirty;
                 }
                 if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
             }
@@ -107,10 +103,8 @@ void rmd (FILE* file, int nframes, bool isDebug) {
                 nRead++;
             }
             else {
-                if (page_table[foundLocation].isDirty){
-                    if (!newPage.isDirty){
-                        page_table[foundLocation] = newPage;
-                    }
+                if (newPage.isDirty){
+                    page_table[foundLocation].isDirty = newPage.isDirty;
                 }
                 if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
             }
@@ -154,18 +148,16 @@ void fifo (FILE* file, int nframes, bool isDebug) {
                     nWrite++;
                 }
                 page_table[olderPageLocation] = newPage;
-                olderPageLocation++;
                 if (isDebug){
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Replace page %x to random location %d\n", newPage.vpn, olderPageLocation);
                 }
+                olderPageLocation++;
                 nRead++;
             }
             else {
-                if (page_table[foundLocation].isDirty){
-                    if (!newPage.isDirty){
-                        page_table[foundLocation] = newPage;
-                    }
+                if (newPage.isDirty){
+                    page_table[foundLocation].isDirty = newPage.isDirty;
                 }
                 if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
             }
@@ -173,18 +165,17 @@ void fifo (FILE* file, int nframes, bool isDebug) {
         else {
             if (isDebug){printf("Table is not full\n");}
             if (!isExist) { 
-                page_table[newPageLocation] = newPage;
+                page_table[olderPageLocation] = newPage;
                 if (isDebug) {
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Add page %x to location %d", newPage.vpn, newPageLocation);
                 }
+                olderPageLocation++;
                 nRead++;
             }
             else {
-                if (page_table[foundLocation].isDirty){
-                    if (!newPage.isDirty){
-                        page_table[foundLocation] = newPage;
-                    }
+                if (newPage.isDirty){
+                    page_table[foundLocation].isDirty = newPage.isDirty;
                 }
                 if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
             }
