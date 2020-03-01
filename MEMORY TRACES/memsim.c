@@ -167,7 +167,6 @@ bool addExist(struct Trace* arr, int n, unsigned ad)
         if(arr[j].vpn == ad)
         return true;
     }
-
     return false;
 }
 /******************************************************************************************************************/
