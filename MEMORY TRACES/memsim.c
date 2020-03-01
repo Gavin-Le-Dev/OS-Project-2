@@ -112,13 +112,14 @@ void lru (FILE* file, int nframes, bool isDebug)
                 
                 int LRUlocation = smallest(LRU, nframes); //replace with LRU page
                 LRU[LRUlocation] = newPage;
-
+                if (LRU[LRUlocation].isDirty){
+                    nWrite++;
+                }
                 if (isDebug){
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Replace page %x to least frequently used location %d\n", newPage.vpn, LRUlocation);
                 }
                 nMiss++;
-                Write++;
                 Read++;
             }
             else //if table is full and page exist on table
@@ -143,6 +144,7 @@ void lru (FILE* file, int nframes, bool isDebug)
                     if(LRU[a].vpn ==-1){nextfreelocatoin =a; break;}
                 }
                 LRU[nextfreelocatoin] = newPage;
+
                 if (isDebug) {
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Add page %x to location %d", newPage.vpn, newPageLocation);
