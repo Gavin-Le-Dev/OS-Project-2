@@ -20,7 +20,7 @@ struct Trace{
 };
 
 /***************************************************************************************************************/
-bool rmdIsExist (struct Trace* table, int nFrames, unsigned addr, bool isDebug){
+bool isPageExist (struct Trace* table, int nFrames, unsigned addr, bool isDebug){
     for (i = 0; i < nFrames; i++){
         if (table[i].vpn == addr){
             foundLocation = i;
@@ -42,33 +42,20 @@ bool isFull (struct Trace* table, int nFrames, bool isDebug){
 }
 /******************************************************************************************************************/
 
-int existPage(struct Trace* arr, int n, unsigned newAdd)
-{
-    int locate;
-
-    for(int i=0; i<n; i++)
-    {
-        if(arr[i].vpn == newAdd)
-        { locate =i;}
-    }
-    return locate;
-}
-
 int smallest(struct Trace* arr, int n) //find the smallest. For LRU to find smallest timer. i.e. least frequently 
 {   
     int min, location;
 
     min = arr[0].access;
-    for(int i=0; i<n; i++)
+    for(i=0; i<n; i++)
     {
-        if(arr[i].access < min)
+        if(arr[i].access <= min)
         {
             min = arr[i].access;
             location = i;
         }
     }
-
-    return i;
+    return location;
 }
 
 /******************************************************************************************************************/
@@ -88,12 +75,11 @@ void lru (FILE* file, int nframes, bool isDebug)
 
     while(fscanf(file, "%x %c", &addr, &d) != EOF)
     {
-
         struct Trace newPage;
         newPage.vpn = addr>>12;     //new page address
         newPage.access = timer;     //new page frequency
         bool full = isFull(LRU, nframes, isDebug);
-        bool isExist = rmdIsExist(LRU, nframes, newPage.vpn, isDebug);
+        bool isExist = isPageExist(LRU, nframes, newPage.vpn, isDebug);
         
 
         if (d == 'w' || d == 'W'){ newPage.isDirty = true; }
@@ -109,7 +95,6 @@ void lru (FILE* file, int nframes, bool isDebug)
             if (isDebug){printf("Table is full\n");}
             if (!isExist)   //if table is full and page does not exist in table. Page fault, evict.
             {
-                
                 int LRUlocation = smallest(LRU, nframes); //replace with LRU page
                 LRU[LRUlocation] = newPage;
 
@@ -123,8 +108,7 @@ void lru (FILE* file, int nframes, bool isDebug)
             }
             else //if table is full and page exist on table
             {
-                int foundlocation = existPage(LRU, nframes,  newPage.vpn);  //find the locatoin and update the timer to current
-                LRU[foundlocation].access = timer;
+                LRU[foundLocation].access = timer;
                 if (newPage.isDirty){
                     LRU[foundLocation].isDirty = newPage.isDirty;
                 }
@@ -137,12 +121,7 @@ void lru (FILE* file, int nframes, bool isDebug)
             if (isDebug){printf("Table is not full\n");}
             if (!isExist) 
             { 
-                int nextfreelocatoin;
-                for(int a=0; a< nframes; a++)   //find the next empty spot
-                {
-                    if(LRU[a].vpn ==-1){nextfreelocatoin =a; break;}
-                }
-                LRU[nextfreelocatoin] = newPage;
+                LRU[newPageLocation] = newPage;
                 if (isDebug) {
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Add page %x to location %d", newPage.vpn, newPageLocation);
@@ -152,8 +131,7 @@ void lru (FILE* file, int nframes, bool isDebug)
             }
             else 
             {
-                int foundlocation = existPage(LRU, nframes,  newPage.vpn);  //find the locatoin and update the timer to current
-                LRU[foundlocation].access = timer;
+                LRU[foundLocation].access = timer;
                 if (newPage.isDirty){
                     LRU[foundLocation].isDirty = newPage.isDirty;
                 }
@@ -161,7 +139,6 @@ void lru (FILE* file, int nframes, bool isDebug)
                 if (isDebug){printf("Page %x is exist at location %d\n", newPage.vpn, foundLocation);}
             }
         }
-
 
         timer++;    //increment timer to the next time frame or next trace
     }
@@ -200,7 +177,7 @@ void VMSprocessA(struct Trace* VMS, struct Trace newPage, char d, int nframes, b
         nEvent++;
         
         bool full = isFull(VMS, nframes, isDebug);
-        bool isExist = rmdIsExist(VMS, nframes, newPage.vpn, isDebug);
+        bool isExist = isPageExist(VMS, nframes, newPage.vpn, isDebug);
 
         
         if (d == 'w' || d == 'W'){ newPage.isDirty = true; }
@@ -277,7 +254,7 @@ void VMSprocessB(struct Trace* VMS, struct Trace newPage, char d, int nframes, b
 {
         nEvent++;
         bool full = isFull(VMS, nframes, isDebug);
-        bool isExist = rmdIsExist(VMS, nframes, newPage.vpn, isDebug);
+        bool isExist = isPageExist(VMS, nframes, newPage.vpn, isDebug);
 
         
         if (d == 'w' || d == 'W'){ newPage.isDirty = true; }
@@ -407,7 +384,7 @@ void rmd (FILE* file, int nframes, bool isDebug) {
         struct Trace newPage;
         newPage.vpn = addr>>12;
         bool full = isFull(page_table, nframes, isDebug);
-        bool isExist = rmdIsExist(page_table, nframes, newPage.vpn, isDebug);
+        bool isExist = isPageExist(page_table, nframes, newPage.vpn, isDebug);
 
         
         if (d == 'w' || d == 'W'){ newPage.isDirty = true; }
@@ -492,7 +469,7 @@ void fifo (FILE* file, int nframes, bool isDebug) {
         struct Trace newPage;
         newPage.vpn = addr>>12;
         bool full = isFull(page_table, nframes, isDebug);
-        bool isExist = rmdIsExist(page_table, nframes, newPage.vpn, isDebug);
+        bool isExist = isPageExist(page_table, nframes, newPage.vpn, isDebug);
 
         
         if (d == 'w' || d == 'W'){ newPage.isDirty = true; }
