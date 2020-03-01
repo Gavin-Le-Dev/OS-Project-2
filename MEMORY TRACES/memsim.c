@@ -148,7 +148,7 @@ void lru (FILE* file, int nframes, bool isDebug)
 		printf("\n[*] Number of Hits: %d\n", nHit);
 		printf("[*] Number of Misses: %d\n", nMiss);
 		double hitrate = (double)nHit / (double) nEvent;
-		printf("[*] Hit Rate: %.1f\n", hitrate);
+		printf("[*] Hit Rate: %0.3f\n", hitrate);
 	}
 
     printf("\nTotal memory frames: %d\n", nframes);
@@ -161,7 +161,8 @@ void lru (FILE* file, int nframes, bool isDebug)
 
 bool addExist(struct Trace* arr, int n, unsigned ad)
 {
-    for(int j=0; j<n; j++)
+    int j;
+    for(j=0; j<n; j++)
     {
         if(arr[j].vpn == ad)
         return true;
@@ -357,7 +358,7 @@ void vms(FILE* file, int nframes, int debug)
 		printf("[*] Number of Hits: %d\n", nHit);
 		printf("[*] Number of Misses: %d\n", nMiss);
 		double hitrate = (double)nHit / ((double)(nHit+nMiss));
-		printf("[*] Hit Rate: %.1f\n", hitrate);
+		printf("[*] Hit Rate: %0.3f\n", hitrate);
 	}
 
 	printf("\nTotal memory frames: %d\n", nframes);
@@ -443,7 +444,7 @@ void rmd (FILE* file, int nframes, bool isDebug) {
 		printf("[*] Number of Hits: %d\n", nHit);
 		printf("[*] Number of Misses: %d\n", nMiss);
 		double hitrate = (double)nHit / ((double)(nHit+nMiss));
-		printf("[*] Hit Rate: %.1f\n", hitrate);
+		printf("[*] Hit Rate: %0.3f\n", hitrate);
 	}
     
     printf("\nTotal memory frames: %d\n", nframes);
@@ -510,7 +511,6 @@ void fifo (FILE* file, int nframes, bool isDebug) {
                     printf("Page %x is not exist in table\n", newPage.vpn);
                     printf("Add page %x to location %d", newPage.vpn, newPageLocation);
                 }
-                olderPageLocation++;
                 nMiss++;
                 nRead++;
             }
@@ -530,7 +530,7 @@ void fifo (FILE* file, int nframes, bool isDebug) {
 		printf("[*] Number of Hits: %d\n", nHit);
 		printf("[*] Number of Misses: %d\n", nMiss);
 		double hitrate = (double)nHit / ((double)(nHit+nMiss));
-		printf("[*] Hit Rate: %.1f\n", hitrate);
+		printf("[*] Hit Rate: %0.3f\n", hitrate);
 	}
 
     printf("\nTotal memory frames: %d\n", nframes);
@@ -590,4 +590,5 @@ int main(int argc, char *argv[]) {
     {
         printf("Invalid algorithm.\n");
     }
+    return 0;
 }
