@@ -273,8 +273,6 @@ void vms(FILE* file, int nframes, bool isDebug)
 {
     struct Trace vmsA[nframes/2];
     struct Trace vmsB[nframes/2];
-    struct Trace dirtyTable[nframes];
-    struct Trace cleanTable[nframes];
     
     unsigned addr;
     char rw;
