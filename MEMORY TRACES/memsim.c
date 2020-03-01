@@ -147,8 +147,8 @@ void lru (FILE* file, int nframes, bool isDebug)
 	{
 		printf("\n[*] Number of Hits: %d\n", nHit);
 		printf("[*] Number of Misses: %d\n", nMiss);
-		double hitrate = (double)nHit / (double) nEvent;
-		printf("[*] Hit Rate: %.1f\n", hitrate);
+		double hitrate = (double)nHit / (double)(nMiss + nHit);
+		printf("[*] Hit Rate: %.7f\n", hitrate);
 	}
 
     printf("\nTotal memory frames: %d\n", nframes);
@@ -166,7 +166,6 @@ bool addExist(struct Trace* arr, int n, unsigned ad)
         if(arr[j].vpn == ad)
         return true;
     }
-
     return false;
 }
 /******************************************************************************************************************/
@@ -356,7 +355,7 @@ void vms(FILE* file, int nframes, int debug)
 	{
 		printf("[*] Number of Hits: %d\n", nHit);
 		printf("[*] Number of Misses: %d\n", nMiss);
-		double hitrate = (double)nHit / ((double)(nHit+nMiss));
+		double hitrate = (double) nHit / ((double)(nHit+nMiss));
 		printf("[*] Hit Rate: %.1f\n", hitrate);
 	}
 
